@@ -26,6 +26,7 @@ module.exports = (entry, alias = {}) => ({
   context: __dirname,
   devtool: false,
   entry,
+  ignoreWarnings: [/Failed to parse source map/],
   module: {
     rules: [
       {
@@ -54,7 +55,7 @@ module.exports = (entry, alias = {}) => ({
     ]
   },
   output: {
-    chunkFilename: '[name].js',
+    chunkFilename: 'out[name].js',
     filename: '[name].js',
     globalObject: '(typeof self !== \'undefined\' ? self : this)',
     path: path.join(__dirname, 'build')
@@ -95,10 +96,16 @@ module.exports = (entry, alias = {}) => ({
     }), alias),
     extensions: ['.js', '.jsx', '.ts', '.tsx'],
     fallback: {
+      assert: require.resolve('assert'),
       crypto: require.resolve('crypto-browserify'),
+      http: require.resolve('stream-http'),
+      https: require.resolve('https-browserify'),
+      os: require.resolve('os-browserify'),
       path: require.resolve('path-browserify'),
-      stream: require.resolve('stream-browserify')
+      stream: require.resolve('stream-browserify'),
+      url: require.resolve('url')
     }
   },
   watch: false
+
 });

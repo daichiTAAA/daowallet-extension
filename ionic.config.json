@@ -1,0 +1,7 @@
+{
+  "name": "daowallet",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "custom"
+}

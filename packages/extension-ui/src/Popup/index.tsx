@@ -21,6 +21,7 @@ import Accounts from './Accounts';
 import AuthList from './AuthManagement';
 import Authorize from './Authorize';
 import CreateAccount from './CreateAccount';
+import CreateAccountWeb3Auth from './CreateAccountWeb3Auth';
 import Derive from './Derive';
 import Export from './Export';
 import ExportAll from './ExportAll';
@@ -151,6 +152,7 @@ export default function Popup (): React.ReactElement {
                       <Switch>
                         <Route path='/auth-list'>{wrapWithErrorBoundary(<AuthList />, 'auth-list')}</Route>
                         <Route path='/account/create'>{wrapWithErrorBoundary(<CreateAccount />, 'account-creation')}</Route>
+                        <Route path='/account/create/web3auth'>{wrapWithErrorBoundary(<CreateAccountWeb3Auth />, 'account-creation-web3auth')}</Route>
                         <Route path='/account/forget/:address'>{wrapWithErrorBoundary(<Forget />, 'forget-address')}</Route>
                         <Route path='/account/export/:address'>{wrapWithErrorBoundary(<Export />, 'export-address')}</Route>
                         <Route path='/account/export-all'>{wrapWithErrorBoundary(<ExportAll />, 'export-all-address')}</Route>
