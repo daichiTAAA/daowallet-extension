@@ -117,7 +117,7 @@ function CreateAccountWeb3Auth (): React.ReactElement {
     );
   };
 
-  const _getPrivateKey = useCallback(() => {
+  const _getPrivateKey = useCallback(async () => {
     // Assuming user is already logged in.
     let privateKey: Maybe<string> | null;
 
@@ -132,7 +132,7 @@ function CreateAccountWeb3Auth (): React.ReactElement {
 
       return;
     } else {
-      privateKey = String(web3auth.provider.request({
+      privateKey = String(await web3auth.provider.request({
         method: 'private_key'
       }));
       console.log(`private key is: ${privateKey}`);
@@ -157,6 +157,7 @@ function CreateAccountWeb3Auth (): React.ReactElement {
         </IonButton>
         <IonButton
           className={styles.card}
+          // eslint-disable-next-line @typescript-eslint/no-misused-promises
           onClick={_getPrivateKey}
         >
           Get Private Key

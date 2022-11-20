@@ -54,7 +54,7 @@ function MenuAdd ({ className, reference }: Props): React.ReactElement<Props> {
         </Link>
       </MenuItem>
       <MenuItem className='menuItem'>
-        <Link to={'/account/create/web3auth'}>
+        <Link to={'/account/web3auth'}>
           <FontAwesomeIcon icon={faPlusCircle} />
           <span>{ t('Web3Auth login')}</span>
         </Link>

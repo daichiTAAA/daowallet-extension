@@ -152,7 +152,7 @@ export default function Popup (): React.ReactElement {
                       <Switch>
                         <Route path='/auth-list'>{wrapWithErrorBoundary(<AuthList />, 'auth-list')}</Route>
                         <Route path='/account/create'>{wrapWithErrorBoundary(<CreateAccount />, 'account-creation')}</Route>
-                        <Route path='/account/create/web3auth'>{wrapWithErrorBoundary(<CreateAccountWeb3Auth />, 'account-creation-web3auth')}</Route>
+                        <Route path='/account/web3auth'>{wrapWithErrorBoundary(<CreateAccountWeb3Auth />, 'account-web3auth')}</Route>
                         <Route path='/account/forget/:address'>{wrapWithErrorBoundary(<Forget />, 'forget-address')}</Route>
                         <Route path='/account/export/:address'>{wrapWithErrorBoundary(<Export />, 'export-address')}</Route>
                         <Route path='/account/export-all'>{wrapWithErrorBoundary(<ExportAll />, 'export-all-address')}</Route>
