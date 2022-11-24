@@ -205,7 +205,7 @@ function CreateAccountWeb3Auth ({ className }: Props): React.ReactElement {
       />
       <div className={className}>
         <h1 className='text-3xl font-bold'>
-          Hello world!
+          Hello world!!
         </h1>
         <div className='page'>
           {provider ? loggedInView : unloggedInView}
