@@ -1,22 +1,26 @@
 // Copyright 2019-2022 @polkadot/extension-ui authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import { IonButton, IonContent, IonHeader, IonPage, IonRow, IonTitle, IonToolbar } from '@ionic/react';
 import { CHAIN_NAMESPACES, Maybe, SafeEventEmitterProvider } from '@web3auth/base';
 import { Web3Auth } from '@web3auth/modal';
 import { OpenloginAdapter } from '@web3auth/openlogin-adapter';
+import { t } from 'i18next';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 
+import HeaderWithCancel from '@polkadot/extension-ui/partials/HeaderWithCancel';
+import { ThemeProps } from '@polkadot/extension-ui/types';
 import { Keyring } from '@polkadot/keyring';
 
-const styles = {
-  card: 'mt-2 col-span-8 col-start-3'
-};
+interface Props extends ThemeProps {
+  className?: string;
+}
 
-function CreateAccountWeb3Auth (): React.ReactElement {
+function CreateAccountWeb3Auth ({ className }: Props): React.ReactElement {
   const [web3auth, setWeb3auth] = useState<Web3Auth | null>(null);
   const [provider, setProvider] = useState<SafeEventEmitterProvider | null>(null);
+  const [userInfo, setUserInfo] = useState<unknown | null>(null);
+  const [privateKey, setPrivateKey] = useState<string | null>(null);
 
   const clientId = 'BHV75ODX9QpTBg3yxoQ0MNnTbQ4ksELPEDvkQN_KUAWdFkNdqgzmUZc2p48W1prowdNugWT91_4ydRFFBwap1dE';
 
@@ -82,9 +86,11 @@ function CreateAccountWeb3Auth (): React.ReactElement {
       return;
     }
 
-    const user = web3auth.getUserInfo();
+    const userInfo = web3auth.getUserInfo();
 
-    console.log(user);
+    setUserInfo(userInfo);
+
+    console.log(userInfo);
   }, [web3auth]);
 
   const logout = useCallback(() => {
@@ -109,12 +115,14 @@ function CreateAccountWeb3Auth (): React.ReactElement {
     const pairName = String(pair.meta.name);
     const pairPublicKey = String(pair.publicKey);
 
-    console.log(
+    const keyringInfo =
       `
       ${pairName}: has address ${pair.address} with publicKey [${pairPublicKey}]
       polkadot address: ${keyring.encodeAddress(pair.publicKey, 0)}
       `
-    );
+    ;
+
+    console.log(keyringInfo);
   };
 
   const _getPrivateKey = useCallback(async () => {
@@ -136,6 +144,7 @@ function CreateAccountWeb3Auth (): React.ReactElement {
         method: 'private_key'
       }));
       console.log(`private key is: ${privateKey}`);
+      setPrivateKey(privateKey);
     }
 
     // Do something with privateKey
@@ -148,62 +157,99 @@ function CreateAccountWeb3Auth (): React.ReactElement {
 
   const loggedInView = (
     <>
-      <IonRow className='grid grid-cols-12'>
-        <IonButton
-          className={styles.card}
+      <div className ='content'>
+        <button
+          className ='btn--orange'
           onClick={_getUserInfo}
         >
           Get User Info
-        </IonButton>
-        <IonButton
-          className={styles.card}
+        </button>
+        <button
+          className = 'btn--orange'
           // eslint-disable-next-line @typescript-eslint/no-misused-promises
           onClick={_getPrivateKey}
         >
           Get Private Key
-        </IonButton>
-        <IonButton
-          className={styles.card}
+        </button>
+        <button
+          className ='btn--orange'
           onClick={logout}
         >
           Log Out
-        </IonButton>
-      </IonRow>
+        </button>
+      </div>
+      {userInfo && userInfo}
+      {privateKey && privateKey}
     </>
   );
 
   const unloggedInView = (
-    <IonRow className='grid grid-cols-12'>
-      <IonButton
-        className='mt-10 col-span-8 col-start-3'
-        // eslint-disable-next-line @typescript-eslint/no-misused-promises
-        onClick={login}
-      >
+    <>
+      <div className='content'>
+        <button
+          className = 'btn--orange'
+          // eslint-disable-next-line @typescript-eslint/no-misused-promises
+          onClick={login}
+        >
         Login
-      </IonButton>
-    </IonRow>
+        </button>
+      </div>
+    </>
   );
 
   return (
     <>
-      <IonPage>
-        <IonHeader>
-          <IonToolbar>
-            <IonTitle>Login</IonTitle>
-          </IonToolbar>
-        </IonHeader>
-        <IonContent>
+      <HeaderWithCancel
+        step='1'
+        text={t<string>('Web3Auth Login')}
+      />
+      <div className={className}>
+        <div className='page'>
           {provider ? loggedInView : unloggedInView}
-        </IonContent>
-      </IonPage>
+        </div>
+      </div>
     </>
   );
 }
 
-export default styled(CreateAccountWeb3Auth)`
-  margin-bottom: 16px;
+export default styled(CreateAccountWeb3Auth)(({ theme }: ThemeProps) => `
+  margin-bottom: 21px;
 
-  label::after {
-    right: 36px;
+  .header {
+    display: flex;
   }
-`;
+
+  .page {
+    background-color: green;
+    height: 500px;
+  }
+
+  .content {
+    text-align: center;
+    background-color: purple;
+    height: 300px;
+  }
+
+  .btn--orange,
+    a.btn--orange {
+    text-align: center;
+    width: 30%;
+    color: #fff;
+    background-color: #eb6100;
+    z-index: 10000;
+    padding: 10px;
+    margin: 10px;
+    border-radius: 5vh;
+  }
+  .btn--orange:hover,
+    a.btn--orange:hover {
+    text-align: center;
+    width: 30%;
+    color: #fff;
+    background: #f56500;
+    z-index: 10000;
+    padding: 10px;
+    margin: 10px;
+    border-radius: 5vh;
+  } 
+`);

@@ -10,7 +10,7 @@ module.exports = {
     'jest/**/*',
     'i18next-scanner.config.js',
     'capacitor.config.ts',
-    'config-overrides.js'
+    'tailwind.config.cjs'
   ],
   parserOptions: {
     ...base.parserOptions,

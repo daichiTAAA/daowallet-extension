@@ -19,11 +19,13 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "polkadot-dev-build-ts && yarn build:zip && yarn build:rollup",
+    "build": "yarn build:tailwind && polkadot-dev-build-ts && yarn build:zip && yarn build:rollup",
+    "build:css": "NODE_ENV=production npx tailwindcss -o ./packages/extension/public/output.css -m",
     "build:extra": "yarn build:i18n && yarn build:ui",
     "build:i18n": "i18next-scanner --config i18next-scanner.config.js",
     "build:release": "polkadot-ci-ghact-build",
     "build:rollup": "polkadot-exec-rollup --config",
+    "build:tailwind": "npx tailwindcss -i ./packages/extension/public/input.css -o ./packages/extension/public/output.css",
     "build:ui": "cd packages/extension && NODE_ENV=production yarn polkadot-exec-webpack --config webpack.extension.cjs --mode production",
     "build:zip": "yarn build:zip:dst && yarn build:zip:src",
     "build:zip:dst": "rm -rf ./master-build.zip && cd packages/extension/build && zip -r -FS ../../../master-build.zip .",
@@ -32,6 +34,7 @@
     "lint": "polkadot-dev-run-lint",
     "postinstall": "polkadot-dev-yarn-only",
     "start": "yarn watch",
+    "start:css": "tailwindcss -o src/tailwind.css --watch",
     "test": "EXTENSION_PREFIX='test' polkadot-dev-run-test --detectOpenHandles",
     "test:one": "EXTENSION_PREFIX='test' polkadot-dev-run-test --detectOpenHandles",
     "watch": "cd packages/extension && yarn polkadot-exec-webpack --config webpack.watch.cjs --mode development --watch"
