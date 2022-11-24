@@ -30,7 +30,7 @@ function CreateAccountWeb3Auth ({ className }: Props): React.ReactElement {
         const web3auth = new Web3Auth({
           chainConfig: {
             /*
-              you can pass your own chain configs here
+              you can pass your own  chain configs here
               */
             chainNamespace: CHAIN_NAMESPACES.OTHER,
             displayName: 'Astar',
