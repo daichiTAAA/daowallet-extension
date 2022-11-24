@@ -39,6 +39,9 @@
     "@polkadot/ui-settings": "^2.9.13",
     "@polkadot/util": "^10.1.13",
     "@polkadot/util-crypto": "^10.1.13",
+    "@twind/core": "^1.0.1",
+    "@twind/preset-autoprefix": "^1.0.1",
+    "@twind/preset-tailwind": "^1.0.1",
     "@web3auth/modal": "^3.0.4",
     "file-saver": "^2.0.5",
     "i18next": "^21.10.0",
@@ -65,7 +68,6 @@
     "@wojtekmaj/enzyme-adapter-react-17": "^0.6.7",
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-16": "^1.15.7",
-    "sinon-chrome": "^3.0.1",
-    "tailwindcss": "^3.2.4"
+    "sinon-chrome": "^3.0.1"
   }
 }

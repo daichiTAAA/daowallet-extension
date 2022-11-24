@@ -5,9 +5,6 @@ const path = require('path');
 const webpack = require('webpack');
 const CopyPlugin = require('copy-webpack-plugin');
 const ManifestPlugin = require('webpack-extension-manifest-plugin');
-const MiniCssExtractPlugin = require('css-minimizer-webpack-plugin');
-const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
-const TailwindCSS = require('tailwindcss');
 
 const { blake2AsHex } = require('@polkadot/util-crypto');
 
@@ -33,33 +30,6 @@ module.exports = (entry, alias = {}) => ({
   module: {
     rules: [
       {
-        test: /\.css$/,
-        use: [
-          {
-            loader: MiniCssExtractPlugin.loader,
-            options: {
-              publicPath: path.resolve(__dirname, 'build')
-            }
-          },
-          {
-            loader: 'css-loader',
-            options: {
-              url: false
-            }
-          },
-          {
-            loader: 'postcss-loader',
-            options: {
-              postcssOptions: {
-                plugins: [
-                  TailwindCSS
-                ]
-              }
-            }
-          }
-        ]
-      },
-      {
         exclude: /(node_modules)/,
         test: /\.(js|mjs|ts|tsx)$/,
         use: [
@@ -82,13 +52,6 @@ module.exports = (entry, alias = {}) => ({
           }
         ]
       }
-    ]
-  },
-  optimization: {
-    minimizer: [
-      // For webpack@5 you can use the `...` syntax to extend existing minimizers (i.e. `terser-webpack-plugin`), uncomment the next line
-      '...',
-      new CssMinimizerPlugin()
     ]
   },
   output: {
@@ -125,11 +88,6 @@ module.exports = (entry, alias = {}) => ({
         }
       }
     })
-    // ,
-    // new MiniCssExtractPlugin({
-    //   chunkFilename: '[id].css',
-    //   filename: '[name].bundle.css'
-    // })
   ],
   resolve: {
     alias: packages.reduce((alias, p) => ({

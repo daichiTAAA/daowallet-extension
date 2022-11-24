@@ -185,7 +185,7 @@ function CreateAccountWeb3Auth ({ className }: Props): React.ReactElement {
 
   const unloggedInView = (
     <>
-      <div className='content'>
+      <div className='h-4/5'>
         <button
           className = 'btn--orange'
           // eslint-disable-next-line @typescript-eslint/no-misused-promises
@@ -204,6 +204,9 @@ function CreateAccountWeb3Auth ({ className }: Props): React.ReactElement {
         text={t<string>('Web3Auth Login')}
       />
       <div className={className}>
+        <h1 className='text-3xl font-bold'>
+          Hello world!
+        </h1>
         <div className='page'>
           {provider ? loggedInView : unloggedInView}
         </div>
@@ -212,7 +215,7 @@ function CreateAccountWeb3Auth ({ className }: Props): React.ReactElement {
   );
 }
 
-export default styled(CreateAccountWeb3Auth)(({ theme }: ThemeProps) => `
+export default styled(CreateAccountWeb3Auth)(({ theme }: ThemeProps) => [`
   margin-bottom: 21px;
 
   .header {
@@ -222,12 +225,6 @@ export default styled(CreateAccountWeb3Auth)(({ theme }: ThemeProps) => `
   .page {
     background-color: green;
     height: 500px;
-  }
-
-  .content {
-    text-align: center;
-    background-color: purple;
-    height: 300px;
   }
 
   .btn--orange,
@@ -252,4 +249,4 @@ export default styled(CreateAccountWeb3Auth)(({ theme }: ThemeProps) => `
     margin: 10px;
     border-radius: 5vh;
   } 
-`);
+`]);
