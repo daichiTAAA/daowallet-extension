@@ -30,6 +30,18 @@ module.exports = (entry, alias = {}) => ({
   module: {
     rules: [
       {
+        test: /\.css$/,
+        use: [
+          'style-loader',
+          {
+            loader: 'css-loader',
+            options: {
+              importLoaders: 1
+            }
+          }
+        ]
+      },
+      {
         exclude: /(node_modules)/,
         test: /\.(js|mjs|ts|tsx)$/,
         use: [
