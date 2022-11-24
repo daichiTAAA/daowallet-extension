@@ -215,7 +215,7 @@ function CreateAccountWeb3Auth ({ className }: Props): React.ReactElement {
   );
 }
 
-export default styled(CreateAccountWeb3Auth)(({ theme }: ThemeProps) => [`
+export default styled(CreateAccountWeb3Auth)(() => [`
   margin-bottom: 21px;
 
   .header {
