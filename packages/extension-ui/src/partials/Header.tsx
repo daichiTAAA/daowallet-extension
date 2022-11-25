@@ -111,7 +111,7 @@ function Header ({ children, className = '', onFilter, showAdd, showBackArrow, s
   return (
     <div className={`${className} ${smallMargin ? 'smallMargin' : ''}`}>
       {/* content */}
-      <div className = 'flex justify-between w-full min-h-70'>
+      <div className = 'flex justify-between w-full min-h-70 border-b-2 border-blue-500'>
         {/* branding */}
         <div className= 'flex justify-center items-center font-mono text-center ml-6'>
 

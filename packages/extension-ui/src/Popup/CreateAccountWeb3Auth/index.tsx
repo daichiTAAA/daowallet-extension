@@ -159,20 +159,20 @@ function CreateAccountWeb3Auth ({ className }: Props): React.ReactElement {
     <>
       <div className ='content'>
         <button
-          className ='btn--orange'
+          className ='btn btn--orange text-xl font-serif'
           onClick={_getUserInfo}
         >
           Get User Info
         </button>
         <button
-          className = 'btn--orange'
+          className = 'btn btn--orange text-xl font-serif'
           // eslint-disable-next-line @typescript-eslint/no-misused-promises
           onClick={_getPrivateKey}
         >
           Get Private Key
         </button>
         <button
-          className ='btn--orange'
+          className ='btn btn--orange text-xl font-serif'
           onClick={logout}
         >
           Log Out
@@ -185,9 +185,9 @@ function CreateAccountWeb3Auth ({ className }: Props): React.ReactElement {
 
   const unloggedInView = (
     <>
-      <div className='h-4/5'>
+      <div className='h-4/5 flex justify-center'>
         <button
-          className = 'btn--orange'
+          className = 'btn btn--orange text-5xl font-serif'
           // eslint-disable-next-line @typescript-eslint/no-misused-promises
           onClick={login}
         >
@@ -204,9 +204,6 @@ function CreateAccountWeb3Auth ({ className }: Props): React.ReactElement {
         text={t<string>('Web3Auth Login')}
       />
       <div className={className}>
-        <h1 className='font-bold text-indigo-700'>
-          Hello world!!
-        </h1>
         <div className='page'>
           {provider ? loggedInView : unloggedInView}
         </div>
@@ -223,30 +220,25 @@ export default styled(CreateAccountWeb3Auth)(() => [`
   }
 
   .page {
-    background-color: green;
-    height: 500px;
+    height: 400px;
+  }
+
+  .btn {
+    text-align: center;
+    height: 80px;
+    width: 30%;
+    color: #fff;
+    padding: 10px;
+    margin: 10px;
+    border-radius: 5vh;
   }
 
   .btn--orange,
     a.btn--orange {
-    text-align: center;
-    width: 30%;
-    color: #fff;
     background-color: #eb6100;
-    z-index: 10000;
-    padding: 10px;
-    margin: 10px;
-    border-radius: 5vh;
   }
   .btn--orange:hover,
     a.btn--orange:hover {
-    text-align: center;
-    width: 30%;
-    color: #fff;
     background: #f56500;
-    z-index: 10000;
-    padding: 10px;
-    margin: 10px;
-    border-radius: 5vh;
   } 
 `]);
