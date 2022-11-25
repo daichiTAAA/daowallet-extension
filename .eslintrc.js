@@ -9,8 +9,7 @@ module.exports = {
     ...base.ignorePatterns,
     'jest/**/*',
     'i18next-scanner.config.js',
-    'capacitor.config.ts',
-    'tailwind.config.cjs'
+    'capacitor.config.ts'
   ],
   parserOptions: {
     ...base.parserOptions,

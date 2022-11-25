@@ -20,7 +20,6 @@
   ],
   "scripts": {
     "build": "polkadot-dev-build-ts && yarn build:zip && yarn build:rollup",
-    "build:css": "NODE_ENV=production npx tailwindcss -o ./packages/extension/public/output.css -m",
     "build:extra": "yarn build:i18n && yarn build:ui",
     "build:i18n": "i18next-scanner --config i18next-scanner.config.js",
     "build:release": "polkadot-ci-ghact-build",

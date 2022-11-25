@@ -204,7 +204,7 @@ function CreateAccountWeb3Auth ({ className }: Props): React.ReactElement {
         text={t<string>('Web3Auth Login')}
       />
       <div className={className}>
-        <h1 className='text-3xl font-bold'>
+        <h1 className='font-bold text-indigo-700'>
           Hello world!!
         </h1>
         <div className='page'>

@@ -45,6 +45,7 @@ function Header ({ children, className = '', onFilter, showAdd, showBackArrow, s
   const isConnected = useMemo(() => connectedTabsUrl.length >= 1
     , [connectedTabsUrl]);
   const onAction = useContext(ActionContext);
+  const [isPreferredThemeLight, setIsPreferredThemeLight] = useState<boolean>(false);
 
   useEffect(() => {
     if (!showConnectedAccounts) {
@@ -97,10 +98,23 @@ function Header ({ children, className = '', onFilter, showAdd, showBackArrow, s
     () => onAction('..')
     , [onAction]);
 
+  const preferredTheme = localStorage.getItem('theme');
+
+  useEffect(() => {
+    if (preferredTheme === 'light') {
+      setIsPreferredThemeLight(true);
+    } else {
+      setIsPreferredThemeLight(false);
+    }
+  }, [preferredTheme]);
+
   return (
     <div className={`${className} ${smallMargin ? 'smallMargin' : ''}`}>
-      <div className='container'>
-        <div className='branding'>
+      {/* content */}
+      <div className = 'flex justify-between w-full min-h-70'>
+        {/* branding */}
+        <div className= 'flex justify-center items-center font-mono text-center ml-6'>
+
           {showBackArrow
             ? (
               <FontAwesomeIcon
@@ -111,12 +125,16 @@ function Header ({ children, className = '', onFilter, showAdd, showBackArrow, s
             )
             : (
               <img
-                className='logo'
+                className='w-7 h-7 mt-2 mr-3 mb-3 ml-0'
+                // className='logo'
                 src={logo}
               />
             )
           }
-          <span className='logoText'>{text || 'polkadot{.js}'}</span>
+          {isPreferredThemeLight
+            ? <span className='text-blue-900 font-sans text-xl'>{text || 'polkadot{.js}'}</span>
+            : <span className='text-blue-100 font-sans text-xl'>{text || 'polkadot{.js}'}</span>
+          }
         </div>
         {showSearch && (
           <div className={`searchBarWrapper ${isSearchOpen ? 'selected' : ''}`}>
@@ -147,10 +165,10 @@ function Header ({ children, className = '', onFilter, showAdd, showBackArrow, s
             />
           </div>
         )}
-        <div className='popupMenus'>
+        <div className='self-center'>
           {showAdd && (
             <div
-              className='popupToggle'
+              className='inline-flex align-middle cursor-pointer mr-2'
               onClick={_toggleAdd}
               ref={addIconRef}
             >
@@ -163,7 +181,7 @@ function Header ({ children, className = '', onFilter, showAdd, showBackArrow, s
           )}
           {showSettings && (
             <div
-              className='popupToggle'
+              className='inline-flex align-middle cursor-pointer mr-6'
               data-toggle-settings
               onClick={_toggleSettings}
               ref={setIconRef}
