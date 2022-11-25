@@ -11,16 +11,17 @@ import styled from 'styled-components';
 import HeaderWithCancel from '@polkadot/extension-ui/partials/HeaderWithCancel';
 import { ThemeProps } from '@polkadot/extension-ui/types';
 import { Keyring } from '@polkadot/keyring';
+import { waitReady } from '@polkadot/wasm-crypto';
 
 interface Props extends ThemeProps {
   className?: string;
 }
 
 function CreateAccountWeb3Auth ({ className }: Props): React.ReactElement {
+  const [address, setAddress] = useState<null | string>(null);
+  const [publicKey, setPublicKey] = useState<null | Uint8Array>(null);
   const [web3auth, setWeb3auth] = useState<Web3Auth | null>(null);
   const [provider, setProvider] = useState<SafeEventEmitterProvider | null>(null);
-  const [userInfo, setUserInfo] = useState<unknown | null>(null);
-  const [privateKey, setPrivateKey] = useState<string | null>(null);
 
   const clientId = 'BHV75ODX9QpTBg3yxoQ0MNnTbQ4ksELPEDvkQN_KUAWdFkNdqgzmUZc2p48W1prowdNugWT91_4ydRFFBwap1dE';
 
@@ -44,6 +45,7 @@ function CreateAccountWeb3Auth ({ className }: Props): React.ReactElement {
           adapterSettings: {
             clientId, // get it from https://dashboard.web3auth.io
             network: 'testnet',
+            redirectUrl: 'chrome-extension://ahepkdolibafbhfmminlgjkaonpakmkf',
             uxMode: 'popup'
           }
         });
@@ -67,31 +69,42 @@ function CreateAccountWeb3Auth ({ className }: Props): React.ReactElement {
     });
   }, [setProvider, setWeb3auth]);
 
-  const login = useCallback(async () => {
-    if (!web3auth) {
-      console.log('web3auth not initialized yet');
+  const _getPrivateKey = useCallback(async (): Promise<string | undefined | null> => {
+    // Assuming user is already logged in.
+    let privateKey: Maybe<string> | null;
+
+    if (!provider) {
+      console.log('provider not initialized yet');
 
       return;
     }
 
-    const web3authProvider = await web3auth.connect();
-
-    setProvider(web3authProvider);
-  }, [web3auth]);
-
-  const _getUserInfo = useCallback(() => {
-    if (!web3auth) {
+    if (!web3auth?.provider) {
       console.log('web3auth not initialized yet');
-
-      return;
+    } else {
+      privateKey = await web3auth.provider.request({
+        method: 'private_key'
+      });
     }
 
-    const userInfo = web3auth.getUserInfo();
+    return privateKey;
+  }, [provider, web3auth?.provider]);
 
-    setUserInfo(userInfo);
+  const createKeyring = useCallback(async (privateKey: string) => {
+    await waitReady();
 
-    console.log(userInfo);
-  }, [web3auth]);
+    // Create a keyring instance
+    const keyring = new Keyring({ type: 'sr25519' });
+
+    if (typeof privateKey === 'string') {
+      const privateKeyWithHex = `0x${privateKey}`;
+      const pair = keyring.addFromUri(privateKeyWithHex);
+
+      setPublicKey(pair.publicKey);
+
+      setAddress(pair.address);
+    }
+  }, []);
 
   const logout = useCallback(() => {
     if (!web3auth) {
@@ -107,95 +120,25 @@ function CreateAccountWeb3Auth ({ className }: Props): React.ReactElement {
     setProvider(null);
   }, [web3auth]);
 
-  const createKeyring = (privateKey: string, keyringName: string) => {
-    // Create a keyring instance
-    const keyring = new Keyring({ type: 'sr25519' });
-    const privateKeyWithHex = `0x${privateKey}`;
-    const pair = keyring.addFromUri(privateKeyWithHex, { name: keyringName });
-    const pairName = String(pair.meta.name);
-    const pairPublicKey = String(pair.publicKey);
-
-    const keyringInfo =
-      `
-      ${pairName}: has address ${pair.address} with publicKey [${pairPublicKey}]
-      polkadot address: ${keyring.encodeAddress(pair.publicKey, 0)}
-      `
-    ;
-
-    console.log(keyringInfo);
-  };
-
-  const _getPrivateKey = useCallback(async () => {
-    // Assuming user is already logged in.
-    let privateKey: Maybe<string> | null;
-
-    if (!provider) {
-      console.log('provider not initialized yet');
-
-      return;
-    }
-
-    if (!web3auth?.provider) {
+  const login = useCallback(async () => {
+    if (!web3auth) {
       console.log('web3auth not initialized yet');
 
       return;
-    } else {
-      privateKey = String(await web3auth.provider.request({
-        method: 'private_key'
-      }));
-      console.log(`private key is: ${privateKey}`);
-      setPrivateKey(privateKey);
     }
 
-    // Do something with privateKey
+    const web3authProvider = await web3auth.connect();
+
+    setProvider(web3authProvider);
+
+    const privateKey = await _getPrivateKey();
+
     if (typeof privateKey === 'string') {
-      const keyringName = 'testname';
-
-      createKeyring(privateKey, keyringName);
+      await createKeyring(privateKey);
     }
-  }, [provider, web3auth?.provider]);
 
-  const loggedInView = (
-    <>
-      <div className ='content'>
-        <button
-          className ='btn btn--orange text-xl font-serif'
-          onClick={_getUserInfo}
-        >
-          Get User Info
-        </button>
-        <button
-          className = 'btn btn--orange text-xl font-serif'
-          // eslint-disable-next-line @typescript-eslint/no-misused-promises
-          onClick={_getPrivateKey}
-        >
-          Get Private Key
-        </button>
-        <button
-          className ='btn btn--orange text-xl font-serif'
-          onClick={logout}
-        >
-          Log Out
-        </button>
-      </div>
-      {userInfo && userInfo}
-      {privateKey && privateKey}
-    </>
-  );
-
-  const unloggedInView = (
-    <>
-      <div className='h-4/5 flex justify-center'>
-        <button
-          className = 'btn btn--orange text-5xl font-serif'
-          // eslint-disable-next-line @typescript-eslint/no-misused-promises
-          onClick={login}
-        >
-        Login
-        </button>
-      </div>
-    </>
-  );
+    // logout();
+  }, [createKeyring, web3auth, _getPrivateKey]);
 
   return (
     <>
@@ -205,7 +148,24 @@ function CreateAccountWeb3Auth ({ className }: Props): React.ReactElement {
       />
       <div className={className}>
         <div className='page'>
-          {provider ? loggedInView : unloggedInView}
+          <div>address: {address}</div>
+          <div>publicKey: {publicKey}</div>
+          <div className='h-4/5 flex justify-center'>
+            <button
+              className = 'btn btn--orange text-5xl font-serif'
+              // eslint-disable-next-line @typescript-eslint/no-misused-promises
+              onClick={login}
+            >
+              Login
+            </button>
+            <button
+              className = 'btn btn--orange text-5xl font-serif'
+              // eslint-disable-next-line @typescript-eslint/no-misused-promises
+              onClick={logout}
+            >
+              Logout
+            </button>
+          </div>
         </div>
       </div>
     </>
