@@ -4,7 +4,7 @@
 import type { AccountJson, AllowedPath, AuthorizeRequest, ConnectedTabsUrlResponse, MessageTypes, MessageTypesWithNoSubscriptions, MessageTypesWithNullRequest, MessageTypesWithSubscriptions, MetadataRequest, RequestTypes, ResponseAuthorizeList, ResponseDeriveValidate, ResponseJsonGetAccountInfo, ResponseSigningIsLocked, ResponseTypes, SeedLengths, SigningRequest, SubscriptionMessageTypes } from '@polkadot/extension-base/background/types';
 import type { Message } from '@polkadot/extension-base/types';
 import type { Chain } from '@polkadot/extension-chains/types';
-import type { KeyringPair, KeyringPair$Json } from '@polkadot/keyring/types';
+import type { KeyringPair$Json } from '@polkadot/keyring/types';
 import type { KeyringPairs$Json } from '@polkadot/ui-keyring/types';
 import type { HexString } from '@polkadot/util/types';
 import type { KeypairType } from '@polkadot/util-crypto/types';
@@ -129,10 +129,6 @@ export async function createAccountHardware (address: string, hardwareType: stri
 
 export async function createAccountSuri (name: string, password: string, suri: string, type?: KeypairType, genesisHash?: string): Promise<boolean> {
   return sendMessage('pri(accounts.create.suri)', { genesisHash, name, password, suri, type });
-}
-
-export async function createAccountPrivateKey (pair: KeyringPair, password: string): Promise<boolean> {
-  return sendMessage('pri(accounts.create.privateKey)', { pair, password });
 }
 
 export async function createSeed (length?: SeedLengths, seed?: string, type?: KeypairType): Promise<{ address: string; seed: string }> {

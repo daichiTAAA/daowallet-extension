@@ -137,7 +137,7 @@ function Header ({ children, className = '', onFilter, showAdd, showBackArrow, s
           }
         </div>
         {showSearch && (
-          <div className={`searchBarWrapper ${isSearchOpen ? 'selected' : ''}`}>
+          <div className={`flex flex-row items-center content searchBarWrapper ${isSearchOpen ? 'selected' : ''}`}>
             {showConnectedAccounts && !!isConnected && !isSearchOpen && (
               <div className='connectedAccountsWrapper'>
                 <Link
