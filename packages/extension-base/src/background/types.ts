@@ -81,6 +81,7 @@ export interface RequestSignatures {
   'pri(accounts.create.external)': [RequestAccountCreateExternal, boolean];
   'pri(accounts.create.hardware)': [RequestAccountCreateHardware, boolean];
   'pri(accounts.create.suri)': [RequestAccountCreateSuri, boolean];
+  'pri(accounts.create.privateKey)': [RequestAccountCreatePrivateKey, boolean];
   'pri(accounts.edit)': [RequestAccountEdit, boolean];
   'pri(accounts.export)': [RequestAccountExport, ResponseAccountExport];
   'pri(accounts.batchExport)': [RequestAccountBatchExport, ResponseAccountsExport]
@@ -191,6 +192,12 @@ export interface RequestAccountCreateSuri {
   password: string;
   suri: string;
   type?: KeypairType;
+}
+
+export interface RequestAccountCreatePrivateKey {
+  name: string;
+  pair: KeyringPair;
+  password: string;
 }
 
 export interface RequestAccountCreateHardware {

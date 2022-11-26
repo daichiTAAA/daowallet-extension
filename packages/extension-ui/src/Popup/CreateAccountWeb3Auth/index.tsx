@@ -4,13 +4,18 @@
 import { CHAIN_NAMESPACES, Maybe, SafeEventEmitterProvider } from '@web3auth/base';
 import { Web3Auth } from '@web3auth/modal';
 import { OpenloginAdapter } from '@web3auth/openlogin-adapter';
-import { t } from 'i18next';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 
-import HeaderWithCancel from '@polkadot/extension-ui/partials/HeaderWithCancel';
+import { AccountNamePasswordCreation } from '@polkadot/extension-ui/components';
+import { ActionContext } from '@polkadot/extension-ui/components/contexts';
+import Loading from '@polkadot/extension-ui/components/Loading';
+import useTranslation from '@polkadot/extension-ui/hooks/useTranslation';
+import { createAccountPrivateKey } from '@polkadot/extension-ui/messaging';
+import HeaderWithSteps from '@polkadot/extension-ui/partials/HeaderWithSteps';
 import { ThemeProps } from '@polkadot/extension-ui/types';
 import { Keyring } from '@polkadot/keyring';
+import { KeyringPair } from '@polkadot/keyring/types';
 import { waitReady } from '@polkadot/wasm-crypto';
 
 interface Props extends ThemeProps {
@@ -18,10 +23,14 @@ interface Props extends ThemeProps {
 }
 
 function CreateAccountWeb3Auth ({ className }: Props): React.ReactElement {
-  const [address, setAddress] = useState<null | string>(null);
-  const [publicKey, setPublicKey] = useState<null | Uint8Array>(null);
+  const { t } = useTranslation();
+  const onAction = useContext(ActionContext);
+  const [isBusy, setIsBusy] = useState(false);
+  const [step, setStep] = useState(1);
+  const [pair, setPair] = useState<KeyringPair | null>(null);
   const [web3auth, setWeb3auth] = useState<Web3Auth | null>(null);
   const [provider, setProvider] = useState<SafeEventEmitterProvider | null>(null);
+  const [, setName] = useState('');
 
   const clientId = 'BHV75ODX9QpTBg3yxoQ0MNnTbQ4ksELPEDvkQN_KUAWdFkNdqgzmUZc2p48W1prowdNugWT91_4ydRFFBwap1dE';
 
@@ -45,7 +54,6 @@ function CreateAccountWeb3Auth ({ className }: Props): React.ReactElement {
           adapterSettings: {
             clientId, // get it from https://dashboard.web3auth.io
             network: 'testnet',
-            redirectUrl: 'chrome-extension://ahepkdolibafbhfmminlgjkaonpakmkf',
             uxMode: 'popup'
           }
         });
@@ -74,7 +82,7 @@ function CreateAccountWeb3Auth ({ className }: Props): React.ReactElement {
     let privateKey: Maybe<string> | null;
 
     if (!provider) {
-      console.log('provider not initialized yet');
+      console.log('getPrivateKey: provider not initialized yet');
 
       return;
     }
@@ -90,7 +98,7 @@ function CreateAccountWeb3Auth ({ className }: Props): React.ReactElement {
     return privateKey;
   }, [provider, web3auth?.provider]);
 
-  const createKeyring = useCallback(async (privateKey: string) => {
+  const createKeyring = useCallback(async (privateKey: string): Promise<KeyringPair | null> => {
     await waitReady();
 
     // Create a keyring instance
@@ -100,11 +108,25 @@ function CreateAccountWeb3Auth ({ className }: Props): React.ReactElement {
       const privateKeyWithHex = `0x${privateKey}`;
       const pair = keyring.addFromUri(privateKeyWithHex);
 
-      setPublicKey(pair.publicKey);
+      setPair(pair);
 
-      setAddress(pair.address);
+      return pair;
     }
+
+    return null;
   }, []);
+
+  const login = useCallback(async () => {
+    if (!web3auth) {
+      console.log('web3auth not initialized yet');
+
+      return;
+    }
+
+    const web3authProvider = await web3auth.connect();
+
+    setProvider(web3authProvider);
+  }, [web3auth]);
 
   const logout = useCallback(() => {
     if (!web3auth) {
@@ -120,54 +142,115 @@ function CreateAccountWeb3Auth ({ className }: Props): React.ReactElement {
     setProvider(null);
   }, [web3auth]);
 
-  const login = useCallback(async () => {
-    if (!web3auth) {
-      console.log('web3auth not initialized yet');
+  const _onNextStep = useCallback(
+    () => setStep((step) => step + 1),
+    []
+  );
 
-      return;
-    }
+  const _onPreviousStep = useCallback(
+    () => setStep((step) => step - 1),
+    []
+  );
 
-    const web3authProvider = await web3auth.connect();
+  const _onCreate = useCallback(
+    (name: string, password: string): void => {
+      // this should always be the case
+      if (name && pair && password) {
+        setIsBusy(true);
 
-    setProvider(web3authProvider);
+        createAccountPrivateKey(name, pair, password)
+          .then(() => onAction('/'))
+          .catch((error: Error): void => {
+            setIsBusy(false);
+            console.error(error);
+          });
+      }
 
+      setPair(null);
+    },
+    [onAction, pair]
+  );
+
+  const _makeAccount = useCallback(async () => {
     const privateKey = await _getPrivateKey();
 
     if (typeof privateKey === 'string') {
-      await createKeyring(privateKey);
-    }
+      const pair = await createKeyring(privateKey);
 
-    // logout();
-  }, [createKeyring, web3auth, _getPrivateKey]);
+      setPair(pair);
+
+      if (pair) {
+        _onNextStep();
+      }
+    }
+  }, [_getPrivateKey, createKeyring, _onNextStep]);
+
+  const LoggedinView =
+  (<>
+    <button
+      className = 'btn btn--orange text-3xl font-serif'
+      // eslint-disable-next-line @typescript-eslint/no-misused-promises
+      onClick={_makeAccount}
+    >
+      makeAccount
+    </button>
+    <button
+      className = 'btn btn--orange text-3xl font-serif'
+      // eslint-disable-next-line @typescript-eslint/no-misused-promises
+      onClick={logout}
+    >
+      Logout
+    </button>
+  </>
+  );
+
+  const UnloggedinView = (
+    <button
+      className = 'btn btn--orange text-3xl font-serif'
+      // eslint-disable-next-line @typescript-eslint/no-misused-promises
+      onClick={login}
+    >
+      Login
+    </button>
+  )
+  ;
 
   return (
     <>
-      <HeaderWithCancel
-        step='1'
-        text={t<string>('Web3Auth Login')}
+      <HeaderWithSteps
+        step={step}
+        text={t<string>('Create an account')}
       />
-      <div className={className}>
-        <div className='page'>
-          <div>address: {address}</div>
-          <div>publicKey: {publicKey}</div>
-          <div className='h-4/5 flex justify-center'>
-            <button
-              className = 'btn btn--orange text-5xl font-serif'
-              // eslint-disable-next-line @typescript-eslint/no-misused-promises
-              onClick={login}
-            >
-              Login
-            </button>
-            <button
-              className = 'btn btn--orange text-5xl font-serif'
-              // eslint-disable-next-line @typescript-eslint/no-misused-promises
-              onClick={logout}
-            >
-              Logout
-            </button>
-          </div>
+      <Loading>
+        <div>
+          {`provider setting is: ${String(provider !== null)}`}
         </div>
-      </div>
+        {step === 1 &&
+        <>
+          <div className={className}>
+            <div className='page flex flex-col justify-center items-center'>
+              {(provider === null)
+                ? UnloggedinView
+                : LoggedinView
+              }
+            </div>
+          </div>
+        </>}
+        {step === 2 &&
+                 (
+                   <>
+                     <AccountNamePasswordCreation
+                       buttonLabel={t<string>('Add the account with the generated seed')}
+                       isBusy={isBusy}
+                       onBackClick={_onPreviousStep}
+                       onCreate={_onCreate}
+                       onNameChange={setName}
+                     />
+                   </>
+                 )
+        }
+
+      </Loading>
     </>
   );
 }
@@ -181,12 +264,14 @@ export default styled(CreateAccountWeb3Auth)(() => [`
 
   .page {
     height: 400px;
+    margin-left: 0px;
+    margin-right: 0px;
   }
 
   .btn {
     text-align: center;
     height: 80px;
-    width: 30%;
+    width: 60%;
     color: #fff;
     padding: 10px;
     margin: 10px;
