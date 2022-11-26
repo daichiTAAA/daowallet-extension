@@ -12,7 +12,7 @@ import { packageInfo } from './packageInfo';
 
 function inject () {
   injectExtension(enable, {
-    name: 'daowallet',
+    name: 'polkadot-js',
     version: packageInfo.version
   });
 }
