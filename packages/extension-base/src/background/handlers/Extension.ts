@@ -73,9 +73,8 @@ export default class Extension {
     return true;
   }
 
-  private accountCreatePrivateKey ({ name, pair, password }: RequestAccountCreatePrivateKey): boolean {
+  private accountCreatePrivateKey ({ pair, password }: RequestAccountCreatePrivateKey): boolean {
     keyring.addPair(pair, password);
-    keyring.saveAccountMeta(pair, { ...pair.meta, name });
 
     return true;
   }

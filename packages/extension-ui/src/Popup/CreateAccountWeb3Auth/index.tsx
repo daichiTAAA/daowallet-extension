@@ -8,15 +8,16 @@ import React, { useCallback, useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import { AccountNamePasswordCreation } from '@polkadot/extension-ui/components';
-import { ActionContext } from '@polkadot/extension-ui/components/contexts';
 import Loading from '@polkadot/extension-ui/components/Loading';
 import useTranslation from '@polkadot/extension-ui/hooks/useTranslation';
-import { createAccountPrivateKey } from '@polkadot/extension-ui/messaging';
+import { jsonRestore } from '@polkadot/extension-ui/messaging';
 import HeaderWithSteps from '@polkadot/extension-ui/partials/HeaderWithSteps';
 import { ThemeProps } from '@polkadot/extension-ui/types';
 import { Keyring } from '@polkadot/keyring';
-import { KeyringPair } from '@polkadot/keyring/types';
+import { KeyringPair, KeyringPair$Json } from '@polkadot/keyring/types';
 import { waitReady } from '@polkadot/wasm-crypto';
+
+import { ActionContext } from '../../components';
 
 interface Props extends ThemeProps {
   className?: string;
@@ -98,7 +99,7 @@ function CreateAccountWeb3Auth ({ className }: Props): React.ReactElement {
     return privateKey;
   }, [provider, web3auth?.provider]);
 
-  const createKeyring = useCallback(async (privateKey: string): Promise<KeyringPair | null> => {
+  const createKeypairJson = useCallback(async (privateKey: string, name: string, password: string): Promise<KeyringPair$Json | null> => {
     await waitReady();
 
     // Create a keyring instance
@@ -106,11 +107,11 @@ function CreateAccountWeb3Auth ({ className }: Props): React.ReactElement {
 
     if (typeof privateKey === 'string') {
       const privateKeyWithHex = `0x${privateKey}`;
-      const pair = keyring.addFromUri(privateKeyWithHex);
+      const pair = keyring.addFromUri(privateKeyWithHex, { name });
 
-      setPair(pair);
+      const keypairJson = pair.toJson(password);
 
-      return pair;
+      return keypairJson;
     }
 
     return null;
@@ -153,44 +154,40 @@ function CreateAccountWeb3Auth ({ className }: Props): React.ReactElement {
   );
 
   const _onCreate = useCallback(
-    (name: string, password: string): void => {
-      // this should always be the case
-      if (name && pair && password) {
-        setIsBusy(true);
+    async (name: string, password: string): Promise<void> => {
+      setIsBusy(true);
+      const privateKey = await _getPrivateKey();
 
-        createAccountPrivateKey(name, pair, password)
-          .then(() => onAction('/'))
-          .catch((error: Error): void => {
-            setIsBusy(false);
-            console.error(error);
-          });
+      if (privateKey && name && password) {
+        try {
+          const keyepairJson = await createKeypairJson(privateKey, name, password);
+
+          if (keyepairJson) {
+            try {
+              await jsonRestore(keyepairJson, password);
+            } catch (error) {
+              console.error(error);
+            }
+
+            onAction('/');
+          }
+        } catch (error) {
+          console.error(error);
+        }
       }
 
       setPair(null);
+      setIsBusy(false);
     },
-    [onAction, pair]
+    [_getPrivateKey, createKeypairJson, onAction]
   );
-
-  const _makeAccount = useCallback(async () => {
-    const privateKey = await _getPrivateKey();
-
-    if (typeof privateKey === 'string') {
-      const pair = await createKeyring(privateKey);
-
-      setPair(pair);
-
-      if (pair) {
-        _onNextStep();
-      }
-    }
-  }, [_getPrivateKey, createKeyring, _onNextStep]);
 
   const LoggedinView =
   (<>
     <button
       className = 'btn btn--orange text-3xl font-serif'
       // eslint-disable-next-line @typescript-eslint/no-misused-promises
-      onClick={_makeAccount}
+      onClick={_onNextStep}
     >
       makeAccount
     </button>
@@ -225,6 +222,9 @@ function CreateAccountWeb3Auth ({ className }: Props): React.ReactElement {
         <div>
           {`provider setting is: ${String(provider !== null)}`}
         </div>
+        <div>
+          pair is: {!!pair}
+        </div>
         {step === 1 &&
         <>
           <div className={className}>
@@ -249,7 +249,6 @@ function CreateAccountWeb3Auth ({ className }: Props): React.ReactElement {
                    </>
                  )
         }
-
       </Loading>
     </>
   );

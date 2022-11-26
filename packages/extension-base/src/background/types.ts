@@ -195,7 +195,6 @@ export interface RequestAccountCreateSuri {
 }
 
 export interface RequestAccountCreatePrivateKey {
-  name: string;
   pair: KeyringPair;
   password: string;
 }

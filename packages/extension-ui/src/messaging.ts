@@ -131,8 +131,8 @@ export async function createAccountSuri (name: string, password: string, suri: s
   return sendMessage('pri(accounts.create.suri)', { genesisHash, name, password, suri, type });
 }
 
-export async function createAccountPrivateKey (name: string, pair: KeyringPair, password: string): Promise<boolean> {
-  return sendMessage('pri(accounts.create.privateKey)', { name, pair, password });
+export async function createAccountPrivateKey (pair: KeyringPair, password: string): Promise<boolean> {
+  return sendMessage('pri(accounts.create.privateKey)', { pair, password });
 }
 
 export async function createSeed (length?: SeedLengths, seed?: string, type?: KeypairType): Promise<{ address: string; seed: string }> {
