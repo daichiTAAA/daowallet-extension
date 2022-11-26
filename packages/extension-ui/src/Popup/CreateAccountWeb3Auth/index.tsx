@@ -14,7 +14,7 @@ import { jsonRestore } from '@polkadot/extension-ui/messaging';
 import HeaderWithSteps from '@polkadot/extension-ui/partials/HeaderWithSteps';
 import { ThemeProps } from '@polkadot/extension-ui/types';
 import { Keyring } from '@polkadot/keyring';
-import { KeyringPair, KeyringPair$Json } from '@polkadot/keyring/types';
+import { KeyringPair$Json } from '@polkadot/keyring/types';
 import { waitReady } from '@polkadot/wasm-crypto';
 
 import { ActionContext } from '../../components';
@@ -28,7 +28,6 @@ function CreateAccountWeb3Auth ({ className }: Props): React.ReactElement {
   const onAction = useContext(ActionContext);
   const [isBusy, setIsBusy] = useState(false);
   const [step, setStep] = useState(1);
-  const [pair, setPair] = useState<KeyringPair | null>(null);
   const [web3auth, setWeb3auth] = useState<Web3Auth | null>(null);
   const [provider, setProvider] = useState<SafeEventEmitterProvider | null>(null);
   const [, setName] = useState('');
@@ -167,16 +166,17 @@ function CreateAccountWeb3Auth ({ className }: Props): React.ReactElement {
               await jsonRestore(keyepairJson, password);
             } catch (error) {
               console.error(error);
+              setIsBusy(false);
             }
 
             onAction('/');
           }
         } catch (error) {
           console.error(error);
+          setIsBusy(false);
         }
       }
 
-      setPair(null);
       setIsBusy(false);
     },
     [_getPrivateKey, createKeypairJson, onAction]
@@ -219,12 +219,6 @@ function CreateAccountWeb3Auth ({ className }: Props): React.ReactElement {
         text={t<string>('Create an account')}
       />
       <Loading>
-        <div>
-          {`provider setting is: ${String(provider !== null)}`}
-        </div>
-        <div>
-          pair is: {!!pair}
-        </div>
         {step === 1 &&
         <>
           <div className={className}>
@@ -240,7 +234,7 @@ function CreateAccountWeb3Auth ({ className }: Props): React.ReactElement {
                  (
                    <>
                      <AccountNamePasswordCreation
-                       buttonLabel={t<string>('Add the account with the generated seed')}
+                       buttonLabel={t<string>('Add the account with Web3Auth')}
                        isBusy={isBusy}
                        onBackClick={_onPreviousStep}
                        onCreate={_onCreate}

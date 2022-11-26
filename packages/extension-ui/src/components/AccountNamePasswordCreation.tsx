@@ -51,9 +51,6 @@ function AccountNamePasswordCreation ({ buttonLabel, isBusy, onBackClick, onCrea
 
   return (
     <>
-      <div>
-      name is {name}, password is {password}
-      </div>
       <Name
         isFocused
         onChange={_onNameChange}
